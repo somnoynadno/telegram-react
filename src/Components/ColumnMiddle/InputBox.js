@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import classNames from 'classnames';
-import { withTranslation } from 'react-i18next';
+import {withTranslation} from 'react-i18next';
 import emojiRegex from 'emoji-regex';
 import MediaRecorder from 'opus-media-recorder';
 import Button from '@material-ui/core/Button';
@@ -31,14 +31,22 @@ import PasteFilesDialog from '../Popup/PasteFilesDialog';
 import RecordTimer from './RecordTimer';
 import EditMediaDialog from '../Popup/EditMediaDialog';
 import OutputTypingManager from '../../Utils/OutputTypingManager';
-import { draftEquals, getChatDraft, getChatDraftReplyToMessageId, getChatFullInfo, isMeChat, isPrivateChat, isSupergroup } from '../../Utils/Chat';
-import { findLastTextNode, focusInput } from '../../Utils/DOM';
-import { getMediaDocumentFromFile, getMediaPhotoFromFile, isEditedMedia } from '../../Utils/Media';
-import { getEntities, getNodes, isTextMessage } from '../../Utils/Message';
-import { getSize, readImageSize } from '../../Utils/Common';
-import { editMessage, replyMessage } from '../../Actions/Client';
-import { isDeletedUser, isMeUser } from '../../Utils/User';
-import { PHOTO_SIZE, SEND_BY_CTRL_ENTER_KEY, VOICENOTE_MIN_RECORD_DURATION } from '../../Constants';
+import {
+    draftEquals,
+    getChatDraft,
+    getChatDraftReplyToMessageId,
+    getChatFullInfo,
+    isMeChat,
+    isPrivateChat,
+    isSupergroup
+} from '../../Utils/Chat';
+import {findLastTextNode, focusInput} from '../../Utils/DOM';
+import {getMediaDocumentFromFile, getMediaPhotoFromFile, isEditedMedia} from '../../Utils/Media';
+import {getEntities, getNodes, isTextMessage} from '../../Utils/Message';
+import {getSize, readImageSize} from '../../Utils/Common';
+import {editMessage, replyMessage} from '../../Actions/Client';
+import {isDeletedUser, isMeUser} from '../../Utils/User';
+import {PHOTO_SIZE, SEND_BY_CTRL_ENTER_KEY, VOICENOTE_MIN_RECORD_DURATION} from '../../Constants';
 import AnimationStore from '../../Stores/AnimationStore';
 import AppStore from '../../Stores/ApplicationStore';
 import ChatStore from '../../Stores/ChatStore';
@@ -49,6 +57,9 @@ import StickerStore from '../../Stores/StickerStore';
 import UserStore from '../../Stores/UserStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './InputBox.css';
+import Channel from "../../Assets/Icons/Channel";
+import {api} from "../../API";
+
 
 const EmojiPickerButton = React.lazy(() => import('./../ColumnMiddle/EmojiPickerButton'));
 
@@ -76,7 +87,7 @@ class InputBox extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { t } = this.props;
+        const {t} = this.props;
         const {
             chatId,
             newDraft,
@@ -154,7 +165,7 @@ class InputBox extends Component {
     }
 
     saveDraft() {
-        const { chatId, editMessageId, replyToMessageId } = this.state;
+        const {chatId, editMessageId, replyToMessageId} = this.state;
 
         const element = this.newMessageRef.current;
         if (!element) return;
@@ -216,13 +227,13 @@ class InputBox extends Component {
     }
 
     onClientUpdateClearHistory = update => {
-        const { chatId } = this.props;
+        const {chatId} = this.props;
 
         if (chatId !== update.chatId) return;
     };
 
     onClientUpdateSendText = update => {
-        const { text } = update;
+        const {text} = update;
 
         if (!text) return;
 
@@ -234,30 +245,30 @@ class InputBox extends Component {
     }
 
     onClientUpdateInputShake = update => {
-        const { chatId, messageId } = this.props;
-        const { shook } = this.state;
+        const {chatId, messageId} = this.props;
+        const {shook} = this.state;
 
         if (shook) {
-            this.setState({ shook: false }, () => {
+            this.setState({shook: false}, () => {
                 setTimeout(() => {
-                    this.setState({ shook: true });
+                    this.setState({shook: true});
                 }, 0);
             });
         } else {
-            this.setState({ shook: true });
+            this.setState({shook: true});
         }
     };
 
     onClientUpdateSendFiles = update => {
-        const { files } = update;
+        const {files} = update;
         if (!files) return;
 
         this.handleSendFiles(Array.from(files));
     };
 
     onUpdateDeleteMessages = update => {
-        const { chatId, editMessageId } = this.state;
-        const { chat_id, message_ids, is_permanent } = update;
+        const {chatId, editMessageId} = this.state;
+        const {chat_id, message_ids, is_permanent} = update;
 
         if (!editMessageId) return;
         if (!is_permanent) return;
@@ -268,8 +279,8 @@ class InputBox extends Component {
     };
 
     onClientUpdateEditMessage = update => {
-        const { chatId, messageId } = update;
-        const { recordingTime } = this.state;
+        const {chatId, messageId} = update;
+        const {recordingTime} = this.state;
         if (recordingTime) return;
         if (this.state.chatId !== chatId) return;
 
@@ -301,7 +312,7 @@ class InputBox extends Component {
         const element = this.newMessageRef.current;
         if (!element) return;
 
-        const { beforeEditText } = this;
+        const {beforeEditText} = this;
 
         if (beforeEditText) {
             element.innerHTML = beforeEditText.innerHTML;
@@ -335,15 +346,15 @@ class InputBox extends Component {
     }
 
     onClientUpdateFocusWindow = update => {
-        const { focused } = update;
+        const {focused} = update;
         if (focused) return;
 
         this.saveDraft();
     };
 
     onUpdateChatDraftMessage = update => {
-        const { chat_id } = update;
-        const { chatId, recordingTime } = this.state;
+        const {chat_id} = update;
+        const {chatId, recordingTime} = this.state;
 
         if (recordingTime) return;
         if (chatId !== chat_id) return;
@@ -352,10 +363,10 @@ class InputBox extends Component {
     };
 
     onClientUpdateAnimationSend = update => {
-        const { animation: item } = update;
+        const {animation: item} = update;
         if (!item) return;
 
-        const { animation, thumbnail, width, height, duration } = item;
+        const {animation, thumbnail, width, height, duration} = item;
         if (!animation) return;
 
         const element = this.newMessageRef.current;
@@ -377,7 +388,7 @@ class InputBox extends Component {
         };
 
         if (thumbnail) {
-            const { width: thumbnailWidth, height: thumbnailHeight, file } = thumbnail;
+            const {width: thumbnailWidth, height: thumbnailHeight, file} = thumbnail;
 
             content.thumbnail = {
                 '@type': 'inputThumbnail',
@@ -390,14 +401,15 @@ class InputBox extends Component {
             };
         }
 
-        this.sendMessage(content, false, result => {});
+        this.sendMessage(content, false, result => {
+        });
     };
 
     onClientUpdateStickerSend = update => {
-        const { sticker: item } = update;
+        const {sticker: item} = update;
         if (!item) return;
 
-        const { sticker, thumbnail, width, height } = item;
+        const {sticker, thumbnail, width, height} = item;
         if (!sticker) return;
 
         const element = this.newMessageRef.current;
@@ -418,7 +430,7 @@ class InputBox extends Component {
         };
 
         if (thumbnail) {
-            const { width: thumbnailWidth, height: thumbnailHeight, file } = thumbnail;
+            const {width: thumbnailWidth, height: thumbnailHeight, file} = thumbnail;
 
             content.thumbnail = {
                 '@type': 'inputThumbnail',
@@ -431,7 +443,8 @@ class InputBox extends Component {
             };
         }
 
-        this.sendMessage(content, false, result => {});
+        this.sendMessage(content, false, result => {
+        });
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateLocalStickersHint',
@@ -440,14 +453,14 @@ class InputBox extends Component {
     };
 
     onClientUpdateReply = update => {
-        const { chatId: currentChatId, recordingTime } = this.state;
-        const { chatId, messageId } = update;
+        const {chatId: currentChatId, recordingTime} = this.state;
+        const {chatId, messageId} = update;
 
         if (currentChatId !== chatId) {
             return;
         }
 
-        this.setState({ replyToMessageId: messageId });
+        this.setState({replyToMessageId: messageId});
 
         if (messageId && !recordingTime) {
             this.setInputFocus();
@@ -455,7 +468,7 @@ class InputBox extends Component {
     };
 
     onClientUpdateChatId = update => {
-        const { chatId } = this.state;
+        const {chatId} = this.state;
         if (chatId === update.nextChatId) return;
 
         this.saveDraft();
@@ -476,13 +489,13 @@ class InputBox extends Component {
     };
 
     setDraft = () => {
-        const { chatId } = this.state;
+        const {chatId} = this.state;
 
         const element = this.newMessageRef.current;
 
-        const { chatSelectOptions } = AppStore;
+        const {chatSelectOptions} = AppStore;
         if (chatSelectOptions && chatSelectOptions.switchInline) {
-            this.setFormattedText({ '@type': 'formattedText', text: chatSelectOptions.switchInline, entities: [] });
+            this.setFormattedText({'@type': 'formattedText', text: chatSelectOptions.switchInline, entities: []});
             return;
         }
 
@@ -498,15 +511,15 @@ class InputBox extends Component {
     };
 
     setEditMessage() {
-        const { chatId, editMessageId } = this.state;
+        const {chatId, editMessageId} = this.state;
 
         const message = MessageStore.get(chatId, editMessageId);
         if (!message) return;
 
-        const { content } = message;
+        const {content} = message;
         if (!content) return;
 
-        const { text, caption } = content;
+        const {text, caption} = content;
         if (!text && !caption) return;
 
         const element = this.newMessageRef.current;
@@ -521,7 +534,7 @@ class InputBox extends Component {
     }
 
     setFormattedText(formattedText) {
-        const { t } = this.props;
+        const {t} = this.props;
         const element = this.newMessageRef.current;
 
         if (!formattedText) {
@@ -529,7 +542,7 @@ class InputBox extends Component {
             return;
         }
 
-        const { text, entities } = formattedText;
+        const {text, entities} = formattedText;
         try {
             const nodes = getNodes(text, entities, t);
             element.innerHTML = null;
@@ -542,7 +555,7 @@ class InputBox extends Component {
     }
 
     setInputFocus = () => {
-        const { recordingTime } = this.state;
+        const {recordingTime} = this.state;
         if (recordingTime) return;
 
         setTimeout(() => {
@@ -555,7 +568,7 @@ class InputBox extends Component {
     setChatDraftMessage = chatDraftMessage => {
         if (!chatDraftMessage) return;
 
-        const { chatId, draftMessage } = chatDraftMessage;
+        const {chatId, draftMessage} = chatDraftMessage;
         if (!chatId) return;
 
         TdLibController.send({
@@ -569,35 +582,35 @@ class InputBox extends Component {
         const chat = ChatStore.get(chatId);
         if (!chat) return;
 
-        const { draft_message } = chat;
-        const { text, entities } = getEntities(innerHTML);
+        const {draft_message} = chat;
+        const {text, entities} = getEntities(innerHTML);
         const draftMessage =
             (text && text.length > 0) || entities.length > 0
                 ? {
-                      '@type': 'draftMessage',
-                      reply_to_message_id: replyToMessageId,
-                      input_message_text: {
-                          '@type': 'inputMessageText',
-                          text: {
-                              '@type': 'formattedText',
-                              text,
-                              entities
-                          },
-                          disable_web_page_preview: false,
-                          clear_draft: false
-                      }
-                  }
+                    '@type': 'draftMessage',
+                    reply_to_message_id: replyToMessageId,
+                    input_message_text: {
+                        '@type': 'inputMessageText',
+                        text: {
+                            '@type': 'formattedText',
+                            text,
+                            entities
+                        },
+                        disable_web_page_preview: false,
+                        clear_draft: false
+                    }
+                }
                 : null;
 
         if (draftEquals(draft_message, draftMessage)) {
             return null;
         }
 
-        return { chatId, draftMessage };
+        return {chatId, draftMessage};
     };
 
     handleSubmit = (startRecord = true) => {
-        const { chatId, editMessageId, replyToMessageId, recordingReady, recordingTime } = this.state;
+        const {chatId, editMessageId, replyToMessageId, recordingReady, recordingTime} = this.state;
 
         if (recordingTime) {
             if ((new Date() - recordingTime) < VOICENOTE_MIN_RECORD_DURATION) {
@@ -614,7 +627,7 @@ class InputBox extends Component {
         const element = this.newMessageRef.current;
         if (!element) return;
 
-        let { innerHTML } = element;
+        let {innerHTML} = element;
 
         element.innerText = null;
         this.handleInput();
@@ -622,7 +635,7 @@ class InputBox extends Component {
         if (!innerHTML) return;
         if (!innerHTML.trim()) return;
 
-        const { text, entities } = getEntities(innerHTML);
+        const {text, entities} = getEntities(innerHTML);
 
         const formattedText = {
             '@type': 'formattedText',
@@ -640,19 +653,64 @@ class InputBox extends Component {
             const editedMessage = MessageStore.get(chatId, editMessageId);
             if (!editedMessage) return;
 
-            const { content } = editedMessage;
+            const {content} = editedMessage;
             if (!content) return;
 
-            const { text, caption } = content;
+            const {text, caption} = content;
             if (text) {
-                this.editMessageText(inputContent, result => {});
+                this.editMessageText(inputContent, result => {
+                });
             } else if (caption) {
                 this.editMessageCaption(formattedText);
             }
             editMessage(chatId, 0);
         } else {
-            this.sendMessage(inputContent, false, result => {});
+            this.sendMessage(inputContent, false, result => {
+            });
         }
+    };
+
+    handleAddNewTask = () => {
+        console.log('HERE');
+        const {chatId} = this.state;
+
+        const element = this.newMessageRef.current;
+        if (!element) return;
+
+        let {innerHTML} = element;
+
+        element.innerText = null;
+        this.handleInput();
+
+        if (!innerHTML) return;
+        if (!innerHTML.trim()) return;
+
+        const {text, entities} = getEntities(innerHTML);
+
+        let formattedText = {
+            '@type': 'formattedText',
+            text,
+            entities
+        };
+        let inputContent = {
+            '@type': 'inputMessageText',
+            text: formattedText,
+            disable_web_page_preview: false,
+            clear_draft: true
+        };
+
+        this.sendMessage(inputContent, false, result => {});
+        api.AddNewTask(inputContent.text, UserStore.getMyId(), chatId)
+            .then((res) => {
+                console.log(res);
+                inputContent.text.text = "[DM] Задача успешно добавлена";
+                this.sendMessage(inputContent, false, result => {});
+            })
+            .catch((err) => {
+                console.log(err);
+                inputContent.text.text = "[DM] Не удалось добавить задачу: " + err.toString();
+                this.sendMessage(inputContent, false, result => {});
+            });
     };
 
     handleAttachPoll = () => {
@@ -688,11 +746,11 @@ class InputBox extends Component {
     };
 
     handleAttachPhotoComplete = async () => {
-        const { files } = this.attachPhotoRef.current;
+        const {files} = this.attachPhotoRef.current;
         if (files.length === 0) return;
 
         if (files.length === 1) {
-            const [ newFile, ...rest ] = Array.from(files);
+            const [newFile, ...rest] = Array.from(files);
             if (!newFile) return;
 
             const newItem = await this.getNewItem(newFile, true);
@@ -707,7 +765,7 @@ class InputBox extends Component {
 
                 const content = {
                     '@type': 'inputMessagePhoto',
-                    photo: { '@type': 'inputFileBlob', name: file.name, size: file.size, data: file },
+                    photo: {'@type': 'inputFileBlob', name: file.name, size: file.size, data: file},
                     width,
                     height
                 };
@@ -726,11 +784,11 @@ class InputBox extends Component {
     };
 
     handleAttachDocumentComplete = async () => {
-        const { files } = this.attachDocumentRef.current;
+        const {files} = this.attachDocumentRef.current;
         if (files.length === 0) return;
 
         if (files.length === 1) {
-            const [ newFile, ...rest ] = Array.from(files);
+            const [newFile, ...rest] = Array.from(files);
             if (!newFile) return;
 
             const newItem = await this.getNewItem(newFile, false);
@@ -743,7 +801,7 @@ class InputBox extends Component {
             Array.from(files).forEach(file => {
                 const content = {
                     '@type': 'inputMessageDocument',
-                    document: { '@type': 'inputFileBlob', name: file.name, size: file.size, data: file }
+                    document: {'@type': 'inputFileBlob', name: file.name, size: file.size, data: file}
                 };
 
                 this.handleSendDocument(content, file);
@@ -754,32 +812,32 @@ class InputBox extends Component {
     };
 
     setTyping() {
-        const { chatId, editMessageId } = this.state;
+        const {chatId, editMessageId} = this.state;
         const chat = ChatStore.get(chatId);
         if (!chat) return;
 
         const element = this.newMessageRef.current;
         if (!element) return;
 
-        const { innerHTML } = element;
+        const {innerHTML} = element;
         if (innerHTML === '<br>' || innerHTML === '<div><br></div>') {
             element.innerHTML = null;
         }
-        const { innerText } = element;
+        const {innerText} = element;
 
         if (!innerText) return;
         if (isMeChat(chatId)) return;
         if (editMessageId) return;
 
         const typingManager = chat.OutputTypingManager || (chat.OutputTypingManager = new OutputTypingManager(chat.id));
-        typingManager.setTyping({ '@type': 'chatActionTyping' });
+        typingManager.setTyping({'@type': 'chatActionTyping'});
     }
 
     setHints() {
-        const { editMessageId } = this.state;
+        const {editMessageId} = this.state;
         const innerText = this.newMessageRef.current.innerText;
         if (!innerText || innerText.length > 11 || editMessageId) {
-            const { hint } = StickerStore;
+            const {hint} = StickerStore;
             if (hint) {
                 TdLibController.clientUpdate({
                     '@type': 'clientUpdateLocalStickersHint',
@@ -796,7 +854,7 @@ class InputBox extends Component {
         const t1 = performance.now();
         // console.log('Matched ' + (t1 - t0) + 'ms', match);
         if (!match || innerText !== match[0]) {
-            const { hint } = StickerStore;
+            const {hint} = StickerStore;
             if (hint) {
                 TdLibController.clientUpdate({
                     '@type': 'clientUpdateLocalStickersHint',
@@ -863,7 +921,7 @@ class InputBox extends Component {
         document.execCommand('unlink', false, null);
 
         let text = '';
-        const { selection } = this;
+        const {selection} = this;
         if (selection && !selection.isCollapsed) {
             text = selection.toString();
         }
@@ -893,7 +951,7 @@ class InputBox extends Component {
     };
 
     handleCancel = () => {
-        const { chatId, editMessageId, replyToMessageId } = this.state;
+        const {chatId, editMessageId, replyToMessageId} = this.state;
         if (editMessageId) {
             editMessage(chatId, 0);
             return true;
@@ -906,8 +964,8 @@ class InputBox extends Component {
     };
 
     handleKeyDown = event => {
-        const { altKey, ctrlKey, key, keyCode, charCode, metaKey, shiftKey, repeat, nativeEvent } = event;
-        const { editMessageId, replyToMessageId } = this.state;
+        const {altKey, ctrlKey, key, keyCode, charCode, metaKey, shiftKey, repeat, nativeEvent} = event;
+        const {editMessageId, replyToMessageId} = this.state;
 
         // console.log('[input] handleKeyDown', key, keyCode, charCode, altKey, ctrlKey, metaKey, shiftKey, repeat, event, nativeEvent, nativeEvent.isComposing);
         //
@@ -917,7 +975,7 @@ class InputBox extends Component {
         // }, 1000);
 
         // fix CJK input
-        const { isComposing } = nativeEvent;
+        const {isComposing} = nativeEvent;
         if (isComposing) {
             return;
         }
@@ -984,7 +1042,7 @@ class InputBox extends Component {
                 if (!repeat && !altKey && !ctrlKey && !metaKey && !shiftKey) {
                     const element = this.newMessageRef.current;
                     if (element && !element.innerText) {
-                        const { editMessageId } = this.state;
+                        const {editMessageId} = this.state;
                         if (editMessageId) return;
 
                         TdLibController.clientUpdate({
@@ -1061,7 +1119,8 @@ class InputBox extends Component {
     };
 
     handleSendPoll = poll => {
-        this.sendMessage(poll, true, () => {});
+        this.sendMessage(poll, true, () => {
+        });
     };
 
     handleSendDocument = (content, file) => {
@@ -1095,12 +1154,12 @@ class InputBox extends Component {
                 newItem
             });
         } else {
-            this.setState({ files });
+            this.setState({files});
         }
     }
 
     handlePaste = async event => {
-        const { items } = event.clipboardData || event.originalEvent.clipboardData;
+        const {items} = event.clipboardData || event.originalEvent.clipboardData;
         if (!items) return;
 
         const files = [];
@@ -1129,14 +1188,14 @@ class InputBox extends Component {
     };
 
     handlePasteConfirm = () => {
-        const { files } = this.state;
+        const {files} = this.state;
         if (!files) return;
         if (!files.length) return;
 
         files.forEach(file => {
             const content = {
                 '@type': 'inputMessageDocument',
-                document: { '@type': 'inputFileBlob', name: file.name, data: file }
+                document: {'@type': 'inputFileBlob', name: file.name, data: file}
             };
 
             this.handleSendDocument(content, file);
@@ -1146,11 +1205,11 @@ class InputBox extends Component {
     };
 
     handlePasteCancel = () => {
-        this.setState({ files: null });
+        this.setState({files: null});
     };
 
     handleUpdateDraftConfirm = () => {
-        const { newDraft } = this.state;
+        const {newDraft} = this.state;
         if (!newDraft) return;
 
         this.loadDraft();
@@ -1158,24 +1217,24 @@ class InputBox extends Component {
     };
 
     handleUpdateDraftCancel = () => {
-        this.setState({ newDraft: null });
+        this.setState({newDraft: null});
     };
 
     handleSendingMessage = (message, blob) => {
         if (!message) return;
 
-        const { sending_state, content, chat_id, id } = message;
+        const {sending_state, content, chat_id, id} = message;
         if (!sending_state) return;
         if (sending_state['@type'] !== 'messageSendingStatePending') return;
         if (content['@type'] !== 'messagePhoto') return;
 
-        const { photo } = content;
+        const {photo} = content;
         if (!photo) return;
 
         const size = getSize(photo.sizes, PHOTO_SIZE);
         if (!size) return;
 
-        const { photo: file } = size;
+        const {photo: file} = size;
         if (!file) return;
 
         FileStore.setBlob(file.id, blob);
@@ -1183,7 +1242,7 @@ class InputBox extends Component {
     };
 
     async editMessageMedia(content) {
-        const { chatId, editMessageId } = this.state;
+        const {chatId, editMessageId} = this.state;
         // console.log('[em] editMessageMedia start', chatId, editMessageId, content);
 
         if (!chatId) return;
@@ -1199,7 +1258,7 @@ class InputBox extends Component {
     }
 
     editMessageCaption(caption) {
-        const { chatId, editMessageId } = this.state;
+        const {chatId, editMessageId} = this.state;
 
         if (!chatId) return;
         if (!editMessageId) return;
@@ -1214,7 +1273,7 @@ class InputBox extends Component {
     }
 
     async editMessageText(content, callback) {
-        const { chatId, editMessageId } = this.state;
+        const {chatId, editMessageId} = this.state;
 
         if (!chatId) return;
         if (!editMessageId) return;
@@ -1234,7 +1293,7 @@ class InputBox extends Component {
     }
 
     sendMessage = async (content, clearDraft, callback) => {
-        const { chatId, replyToMessageId } = this.state;
+        const {chatId, replyToMessageId} = this.state;
 
         if (!chatId) return;
         if (!content) return;
@@ -1248,7 +1307,7 @@ class InputBox extends Component {
                 input_message_content: content
             });
 
-            this.setState({ replyToMessageId: 0 }, () => {
+            this.setState({replyToMessageId: 0}, () => {
                 if (clearDraft) {
                     this.saveDraft();
                 }
@@ -1289,7 +1348,7 @@ class InputBox extends Component {
     };
 
     getTextAndCaretPosition = () => {
-        const { current: input } = this.newMessageRef;
+        const {current: input} = this.newMessageRef;
         if (!input) return;
 
         input.focus()
@@ -1298,11 +1357,11 @@ class InputBox extends Component {
         range.selectNodeContents(input);
         range.setEnd(_range.endContainer, _range.endOffset);
 
-        return { text: input.innerText, position: range.toString().length };
+        return {text: input.innerText, position: range.toString().length};
     };
 
     searchUsernameOrHashtag(text, position, messages, usernameOnly) {
-        const { chatId } = this.state;
+        const {chatId} = this.state;
 
         const searchResultUsernames = [];
 
@@ -1339,13 +1398,13 @@ class InputBox extends Component {
             foundType = 0;
         } else {
             for (let i = searchPosition; i >= 0; i--) {
-                if (i >= text.length){
+                if (i >= text.length) {
                     continue;
                 }
                 let ch = text[i];
                 if (i === 0 || text[i - 1] === ' ' || text[i - 1] === '\n' || text[i - 1] === ':') {
                     if (ch === '@') {
-                        if (needUsernames || needBotContext && i === 0){
+                        if (needUsernames || needBotContext && i === 0) {
                             if (!info && i !== 0) {
                                 this.lastText = text;
                                 this.lastPosition = position;
@@ -1374,7 +1433,7 @@ class InputBox extends Component {
             const users = [];
             const usersMap = new Map();
             for (let i = 0; i < Math.min(100, messages.length); i++) {
-                const { sender } = messages[i];
+                const {sender} = messages[i];
                 if (sender && sender.user_id && !usersMap.has(sender.user_id)) {
                     usersMap.set(sender.user_id, sender.user_id);
                     users.push(sender.user_id);
@@ -1411,7 +1470,7 @@ class InputBox extends Component {
                         object = chat;
                         id = -chat.id;
                     } else {
-                        const { user_id } = info.members[i];
+                        const {user_id} = info.members[i];
                         const user = UserStore.get(user_id);
                         if (!user || !usernameOnly && isMeUser(user_id) || newResultsMap.has(user_id)) {
                             continue;
@@ -1459,17 +1518,17 @@ class InputBox extends Component {
                         chat_id: chatId,
                         query: usernameString,
                         limit: 20,
-                        filter: { '@type': 'chatMembersFilterMention', message_thread_id: 0 }
+                        filter: {'@type': 'chatMembersFilterMention', message_thread_id: 0}
                     });
 
                     if (this.now !== now) {
                         return;
                     }
 
-                    const { members } = result;
+                    const {members} = result;
                     if (members.length > 0) {
                         for (let i = 0; i < members.length; i++) {
-                            const { user_id } = members[i];
+                            const {user_id} = members[i];
                             if (isMeUser(user_id)) {
                                 continue;
                             }
@@ -1523,7 +1582,7 @@ class InputBox extends Component {
     }
 
     setRecordingReadyState() {
-        const { editMessageId } = this.state;
+        const {editMessageId} = this.state;
         const innerText = this.newMessageRef.current.innerText;
         if (!innerText && !editMessageId) {
             this.setState({
@@ -1540,11 +1599,11 @@ class InputBox extends Component {
         let defaultText = '';
         let defaultUrl = '';
 
-        const { selection, range } = this;
+        const {selection, range} = this;
         if (range) {
-            let { startContainer, endContainer } = range;
+            let {startContainer, endContainer} = range;
             if (startContainer === endContainer) {
-                const { parentElement } = startContainer;
+                const {parentElement} = startContainer;
                 if (parentElement && parentElement.nodeName === 'A') {
                     defaultText = parentElement.innerText;
                     defaultUrl = parentElement.href;
@@ -1583,7 +1642,7 @@ class InputBox extends Component {
     }
 
     restoreSelection() {
-        const { range } = this;
+        const {range} = this;
 
         if (!range) {
             this.focusInput();
@@ -1629,18 +1688,18 @@ class InputBox extends Component {
         this.closeEditUrlDialog();
         setTimeout(() => {
             // edit current link node
-            const { range } = this;
+            const {range} = this;
             if (range) {
-                const { startContainer, endContainer } = range;
+                const {startContainer, endContainer} = range;
                 if (startContainer && startContainer === endContainer) {
-                    const { parentNode } = startContainer;
+                    const {parentNode} = startContainer;
                     if (parentNode && parentNode.nodeName === 'A') {
                         parentNode.href = url;
                         parentNode.title = url;
                         parentNode.innerText = text;
 
                         // move cursor to end of editing node
-                        const { lastChild } = parentNode;
+                        const {lastChild} = parentNode;
                         if (lastChild) {
                             const range = document.createRange();
                             range.setStart(lastChild, lastChild.textContent.length);
@@ -1670,22 +1729,22 @@ class InputBox extends Component {
         if (content) {
             const message = await this.editMessageMedia(content);
             if (message) {
-                const { content: editContent } = message;
+                const {content: editContent} = message;
                 switch (editContent['@type']) {
                     case 'messagePhoto': {
-                        const { photo: sendPhoto } = content;
+                        const {photo: sendPhoto} = content;
                         if (!sendPhoto) break;
 
-                        const { data: blob } = sendPhoto;
+                        const {data: blob} = sendPhoto;
                         if (!blob) break;
 
-                        const { photo } = editContent;
+                        const {photo} = editContent;
                         if (!photo) break;
 
                         const iSize = photo.sizes.find(x => x.type === 'i');
                         if (!iSize) break;
 
-                        const { photo: file } = iSize;
+                        const {photo: file} = iSize;
                         if (file) {
                             FileStore.setBlob(file.id, blob);
                         }
@@ -1719,7 +1778,7 @@ class InputBox extends Component {
     };
 
     closeEditMediaDialog(cancel = true) {
-        const { newItem } = this.state;
+        const {newItem} = this.state;
 
         this.setState(
             {
@@ -1758,10 +1817,11 @@ class InputBox extends Component {
         if (this.recorder) return;
 
         let stream = null;
-        try{
-            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({audio: true});
             if (this.recorder) return;
-        } catch { }
+        } catch {
+        }
 
         if (!stream) {
             this.setState({
@@ -1778,7 +1838,7 @@ class InputBox extends Component {
         const track = stream.getAudioTracks()[0];
         track.applyConstraints(constraints)
 
-        const options = { mimeType: 'audio/ogg; codecs=opus', audioBitsPerSecond: 64000 };
+        const options = {mimeType: 'audio/ogg; codecs=opus', audioBitsPerSecond: 64000};
         const workerOptions = {
             encoderWorkerFactory: function () {
                 return new Worker(process.env.PUBLIC_URL + '/opus-media-recorder/encoderWorker.umd.js')
@@ -1797,10 +1857,10 @@ class InputBox extends Component {
 
         };
         recorder.onstop = () => {
-            TdLibController.clientUpdate({ '@type': 'clientUpdateRecordStop' });
-            this.setState({ recordingTime: null });
+            TdLibController.clientUpdate({'@type': 'clientUpdateRecordStop'});
+            this.setState({recordingTime: null});
 
-            const { cancelled } = this.recorder;
+            const {cancelled} = this.recorder;
             this.recorder = null;
 
             this.loadDraft();
@@ -1809,14 +1869,14 @@ class InputBox extends Component {
             }
 
             // console.log('stop');
-            const blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
+            const blob = new Blob(chunks, {'type': 'audio/ogg; codecs=opus'});
             const audioURL = window.URL.createObjectURL(blob);
 
             const audio = new Audio(audioURL);
             audio.oncanplay = () => {
                 const content = {
                     '@type': 'inputMessageVoiceNote',
-                    voice_note: { '@type': 'inputFileBlob', name: '', size: blob.size, data: blob },
+                    voice_note: {'@type': 'inputFileBlob', name: '', size: blob.size, data: blob},
                     duration: Math.trunc(audio.duration),
                     waveform: '',
                     caption: null
@@ -1826,8 +1886,8 @@ class InputBox extends Component {
             };
         };
         recorder.onerror = () => {
-            TdLibController.clientUpdate({ '@type': 'clientUpdateRecordError' });
-            this.setState({ recordingTime: null });
+            TdLibController.clientUpdate({'@type': 'clientUpdateRecordError'});
+            this.setState({recordingTime: null});
 
             this.loadDraft();
             // console.log('error', e);
@@ -1837,8 +1897,8 @@ class InputBox extends Component {
         this.recorder.start(50);
         this.startTime = new Date();
 
-        TdLibController.clientUpdate({ '@type': 'clientUpdateRecordStart' });
-        this.setState({ recordingTime: new Date() });
+        TdLibController.clientUpdate({'@type': 'clientUpdateRecordStart'});
+        this.setState({recordingTime: new Date()});
     }
 
     handleClosePermission = () => {
@@ -1848,7 +1908,7 @@ class InputBox extends Component {
     };
 
     render() {
-        const { t } = this.props;
+        const {t} = this.props;
         const {
             chatId,
             editMessageId,
@@ -1867,14 +1927,15 @@ class InputBox extends Component {
         } = this.state;
 
         const isMediaEditing = editMessageId > 0 && !isTextMessage(chatId, editMessageId);
-        let icon = (<SpeedDialIcon open={!recordingTime && recordingReady} openIcon={<MicrophoneIcon />} icon={<SendIcon />} />);
+        let icon = (
+            <SpeedDialIcon open={!recordingTime && recordingReady} openIcon={<MicrophoneIcon/>} icon={<SendIcon/>}/>);
         if (editMessageId) {
             icon = <DoneIcon/>;
         }
 
         return (
             <div className='inputbox-background'>
-                <div className={classNames('inputbox', { 'inputbox-recording': recordingTime }, { 'shook': shook })}>
+                <div className={classNames('inputbox', {'inputbox-recording': recordingTime}, {'shook': shook})}>
                     <div className={classNames('inputbox-bubble')}>
                         <InputBoxHeader
                             chatId={chatId}
@@ -1887,10 +1948,10 @@ class InputBox extends Component {
                                 <React.Suspense
                                     fallback={
                                         <IconButton className='inputbox-icon-button' aria-label='Emoticon'>
-                                            <InsertEmoticonIcon />
+                                            <InsertEmoticonIcon/>
                                         </IconButton>
                                     }>
-                                    <EmojiPickerButton onSelect={this.handleEmojiSelect} />
+                                    <EmojiPickerButton onSelect={this.handleEmojiSelect}/>
                                 </React.Suspense>
                             </div>
                             <div className='inputbox-middle-column'>
@@ -1939,7 +2000,7 @@ class InputBox extends Component {
                             </div>
                         </div>
                     </div>
-                    { recordingTime && (
+                    {recordingTime && (
                         <div className='inputbox-cancel-record-button-background'>
                             <IconButton
                                 className='inputbox-cancel-record-button'
@@ -1947,10 +2008,20 @@ class InputBox extends Component {
                                 size='small'
                                 color='secondary'
                                 onClick={this.handleCancelRecord}>
-                                <DeleteIcon />
+                                <DeleteIcon/>
                             </IconButton>
                         </div>
                     )}
+                    <div className='inputbox-send-button-background'>
+                        <IconButton
+                            className={classNames('inputbox-send-button')}
+                            aria-label='Send'
+                            size='small'
+                            onClick={this.handleAddNewTask}>
+                            <Channel/>
+                        </IconButton>
+                    </div>
+                    <div style={{width: 5}}/>
                     <div className='inputbox-send-button-background'>
                         <IconButton
                             className={classNames('inputbox-send-button', {'inputbox-send-accent-button': recordingTime || !recordingReady})}
@@ -1961,8 +2032,8 @@ class InputBox extends Component {
                         </IconButton>
                     </div>
                 </div>
-                {!isPrivateChat(chatId) && <CreatePollDialog onSend={this.handleSendPoll} />}
-                <PasteFilesDialog files={files} onConfirm={this.handlePasteConfirm} onCancel={this.handlePasteCancel} />
+                {!isPrivateChat(chatId) && <CreatePollDialog onSend={this.handleSendPoll}/>}
+                <PasteFilesDialog files={files} onConfirm={this.handlePasteConfirm} onCancel={this.handlePasteCancel}/>
                 {/*<UpdateDraftDialog draft={newDraft} onConfirm={this.handleUpdateDraftConfirm} onCancel={this.handleUpdateDraftCancel}/>*/}
                 <EditUrlDialog
                     open={openEditUrl}

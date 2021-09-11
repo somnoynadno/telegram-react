@@ -46,6 +46,10 @@ import FileStore from '../../Stores/FileStore';
 import MessageStore from '../../Stores/MessageStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './MessageMenu.css';
+import More from "../../Assets/Icons/More";
+import Channel from "../../Assets/Icons/Channel";
+import UserStore from "../../Stores/UserStore";
+import {api} from "../../API";
 
 class MessageMenu extends React.PureComponent {
     state = {
@@ -204,6 +208,17 @@ class MessageMenu extends React.PureComponent {
         deleteMessages(chatId, [messageId]);
     };
 
+    handleAddNewTask = event => {
+        console.log('here');
+        const { chatId, messageId, onClose } = this.props;
+
+        onClose(event);
+
+        let message = MessageStore.get(chatId, messageId);
+        console.log(message);
+        api.AddNewTask(message.content.text.text, UserStore.getMyId(), chatId);
+    };
+
     handleDownload = event => {
         const { chatId, messageId } = this.props;
         const message = MessageStore.get(chatId, messageId);
@@ -359,6 +374,14 @@ class MessageMenu extends React.PureComponent {
                                     <StopIcon />
                                 </ListItemIcon>
                                 <ListItemText primary={t('StopPoll')} />
+                            </MenuItem>
+                        )}
+                        {(
+                            <MenuItem onClick={this.handleAddNewTask}>
+                                <ListItemIcon>
+                                    <Channel />
+                                </ListItemIcon>
+                                <ListItemText primary={t('Add Task')} />
                             </MenuItem>
                         )}
                     </MenuList>
