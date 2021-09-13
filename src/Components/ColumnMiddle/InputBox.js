@@ -671,7 +671,6 @@ class InputBox extends Component {
     };
 
     handleAddNewTask = () => {
-        console.log('HERE');
         const {chatId} = this.state;
 
         const element = this.newMessageRef.current;
@@ -700,7 +699,7 @@ class InputBox extends Component {
         };
 
         this.sendMessage(inputContent, false, result => {});
-        api.AddNewTask(inputContent.text, UserStore.getMyId(), chatId)
+        api.AddNewTask(inputContent.text.text, UserStore.getMyId(), chatId)
             .then((res) => {
                 console.log(res);
                 inputContent.text.text = "[DM] Задача успешно добавлена";
