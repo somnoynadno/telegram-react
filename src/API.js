@@ -15,6 +15,33 @@ class API {
                 .catch(error => reject(error));
         })
     }
+
+    GetAssignmentsTG(fromID) {
+        return new Promise((resolve, reject) => {
+            axios.get(apiAddress + `/get_assigments_tg?from_id=${fromID}`)
+                .then(response => resolve(response.data))
+                .catch(error => reject(error));
+        })
+    }
+
+    GetTransitions(issueID) {
+        return new Promise((resolve, reject) => {
+            axios.get(apiAddress + `/get_transitions?issue=${issueID}`)
+                .then(response => resolve(response.data))
+                .catch(error => reject(error));
+        })
+    }
+
+    SetTransition(issueID, transitionID) {
+        return new Promise((resolve, reject) => {
+            axios.post(apiAddress + `/set_transitions`, {
+                "issue_id": issueID,
+                "trans_id": transitionID
+            })
+                .then(response => resolve(response.data))
+                .catch(error => reject(error));
+        })
+    }
 }
 
 export const api = new API();

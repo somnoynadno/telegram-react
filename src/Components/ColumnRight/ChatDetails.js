@@ -63,6 +63,9 @@ import UserStore from '../../Stores/UserStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './MoreListItem.css';
 import './ChatDetails.css';
+import Channel from "../../Assets/Icons/Channel";
+import ClearHistoryDialog from "../Popup/ClearHistoryDialog";
+import TasksDialog from "../Popup/TasksDialog";
 
 class ChatDetails extends React.Component {
     constructor(props) {
@@ -76,8 +79,12 @@ class ChatDetails extends React.Component {
 
         this.members = new Map();
         this.state = {
-            prevChatId: chatId
+            prevChatId: chatId,
+            tasksDialogOpen: false,
         };
+
+        this.onTasksDialogClose.bind(this);
+        this.onTasksDialogOpen.bind(this);
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -124,6 +131,10 @@ class ChatDetails extends React.Component {
         }
 
         if (nextProps.theme !== theme) {
+            return true;
+        }
+
+        if (nextState.tasksDialogOpen !== this.state.tasksDialogOpen) {
             return true;
         }
 
@@ -205,6 +216,16 @@ class ChatDetails extends React.Component {
             this.forceUpdate();
         }
     };
+
+    onTasksDialogClose = () => {
+        this.setState({tasksDialogOpen: !this.state.tasksDialogOpen});
+        console.log("closing tasks dialog", this.state.tasksDialogOpen);
+    }
+
+    onTasksDialogOpen = () => {
+        this.setState({tasksDialogOpen: !this.state.tasksDialogOpen});
+        console.log("tasks dialog open", this.state.tasksDialogOpen);
+    }
 
     loadContent = () => {
         this.loadChatContents();
@@ -451,6 +472,11 @@ class ChatDetails extends React.Component {
 
         const content = (
             <>
+                <TasksDialog
+                    chatId={chatId}
+                    isOpen={this.state.tasksDialogOpen}
+                    onClose={this.onTasksDialogClose} />
+                )
                 <ChatDetailsHeader
                     chatId={chatId}
                     backButton={backButton}
@@ -495,6 +521,21 @@ class ChatDetails extends React.Component {
                                                 </Typography>
                                             }
                                             secondary={isPrivateChat(chatId) ? t('Username') : t('InviteLink')}
+                                        />
+                                    </ListItem>
+                                )}
+                                {username && (
+                                    <ListItem button className='list-item-rounded' alignItems='flex-start'
+                                              onClick={this.onTasksDialogOpen}>
+                                        <ListItemIcon>
+                                            <Channel />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={
+                                                <Typography variant='inherit' noWrap>
+                                                    Управление задачами
+                                                </Typography>
+                                            }
                                         />
                                     </ListItem>
                                 )}
